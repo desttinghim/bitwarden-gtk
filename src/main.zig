@@ -16,15 +16,34 @@ pub fn main() anyerror!void {
         c.G_CONNECT_AFTER,
     );
     _ = c.g_application_run(@ptrCast(*c.GApplication, app), 0, null);
+
+    std.debug.print("main finished\n", .{});
 }
 
 fn activate(app: *c.GtkApplication) void {
-    const window = gtk.ApplicationWindow.new(app).as_window();
-    window.set_title("Example Program");
-    window.set_default_size(640, 480);
-    window.as_widget().show_all();
-}
+    const builder = gtk.Builder.new();
+    builder.add_from_string(@embedFile("example.glade")) catch |e| {
+        std.debug.print("error: {s}\n", .{e});
+        return;
+    };
+    builder.set_application(app);
+    if (builder.get_widget("window")) |w| {
+        w.show_all();
+        w.connect("delete-event", @ptrCast(c.GCallback, c.gtk_main_quit), null);
+        if(w.to_window()) |window| {
+            window.set_decorated(false);
+        }
+    }
+    if (builder.get_widget("ok_button")) |w| {
+        if(w.to_button()) |b| {
+            b.connect_clicked(@ptrCast(c.GCallback, c.gtk_main_quit), null);
+        }
+    }
+    if (builder.get_widget("cancel_button")) |w| {
+        if(w.to_button()) |b| {
+            b.connect_clicked(@ptrCast(c.GCallback, c.gtk_main_quit), null);
+        }
+    }
 
-test "basic test" {
-    try std.testing.expectEqual(10, 3 + 7);
+    c.gtk_main();
 }
