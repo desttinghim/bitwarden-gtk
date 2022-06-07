@@ -10,3 +10,6 @@
 [submodule "libs/zuri"]
 	path = libs/zuri
 	url = https://github.com/Vexu/zuri/
+[submodule "libs/zig-gtk3"]
+	path = libs/zig-gtk3
+	url = https://github.com/nfisher1226/zig-gtk3
