@@ -3,15 +3,18 @@ const GTK = @import("gtk");
 const c = GTK.c;
 const gtk = GTK.gtk;
 
+const secret = @import("secret.zig");
 const Bitwarden = @import("bw-cli.zig");
 
 const Login = @import("Login.zig");
 
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 var login: Login = undefined;
+/// Stores the session token
+var session: ?[]const u8 = null;
 
 pub fn main() anyerror!void {
-    const app = c.gtk_application_new("org.gtk.example", c.G_APPLICATION_FLAGS_NONE) orelse @panic("null app :(");
+    const app = c.gtk_application_new("name.desttinghim.bitwardenGTK", c.G_APPLICATION_FLAGS_NONE) orelse @panic("null app :(");
     defer c.g_object_unref(app);
 
     _ = c.g_signal_connect_data(
@@ -73,9 +76,13 @@ fn activate_impl(app: *c.GtkApplication) !void {
     const login_screen = stack.get_child_by_name("login_screen") orelse return error.NoLoginScreen;
     const home_screen = stack.get_child_by_name("home_screen") orelse return error.NoHomeScreen;
 
-    if (try Bitwarden.isLoggedIn(gpa.allocator())) {
+    const stat = try Bitwarden.getStatus(gpa.allocator());
+    if (stat.data.template.status == .unlocked) {
         stack.set_visible_child(home_screen);
+    } else if (stat.data.template.status == .unauthenticated){
+        stack.set_visible_child(login_screen);
     } else {
+        std.debug.print("locked: {}\n", .{stat});
         stack.set_visible_child(login_screen);
     }
 
@@ -98,17 +105,12 @@ fn submit_handler_impl() !void {
     const password = login.password_entry.get_text(alloc) orelse return;
     defer alloc.free(password);
 
-    var child_process = std.ChildProcess.init(
-        &[_][]const u8{ "bw", "login", email, password, "--raw", "--nointeraction", "--response" },
-        alloc,
-    );
-    // child_process.stdin_behavior = .Pipe;
-    child_process.stdout_behavior = .Pipe;
+    const res = try Bitwarden.login(alloc, email, password);
+    std.debug.print("response: {}\n", .{res});
 
-    try child_process.spawn();
+    if (res.data) |data| {
+        session = data.raw;
 
-    const out_bytes = try child_process.stdout.?.reader().readAllAlloc(alloc, std.math.maxInt(usize));
-    defer alloc.free(out_bytes);
-
-    std.debug.print("response: {s}", .{ out_bytes });
+        secret.storePassword(email, password);
+    }
 }

@@ -1,0 +1,12 @@
+[submodule "libs/hzzp"]
+	path = libs/hzzp
+	url = https://github.com/truemedian/hzzp
+[submodule "libs/zelda"]
+	path = libs/zelda
+	url = https://github.com/haze/zelda/
+[submodule "libs/zig-libressl"]
+	path = libs/zig-libressl
+	url = https://github.com/haze/zig-libressl
+[submodule "libs/zuri"]
+	path = libs/zuri
+	url = https://github.com/Vexu/zuri/

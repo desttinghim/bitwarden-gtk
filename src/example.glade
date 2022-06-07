@@ -46,6 +46,25 @@
                 <property name="can-focus">False</property>
                 <property name="orientation">vertical</property>
                 <child>
+                  <object class="GtkComboBoxText" id="login_method">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="active">0</property>
+                    <items>
+                      <item id="password" translatable="yes">Username/Password</item>
+                      <item id="apikey" translatable="yes">Personal API Key</item>
+                    </items>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="padding">8</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <!-- n-columns=3 n-rows=2 -->
                   <object class="GtkGrid">
                     <property name="visible">True</property>
@@ -108,6 +127,16 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkLabel" id="error_label">
+                    <property name="can-focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -122,6 +151,8 @@
                             <property name="label">gtk-ok</property>
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
+                            <property name="can-default">True</property>
+                            <property name="has-default">True</property>
                             <property name="receives-default">True</property>
                             <property name="use-stock">True</property>
                           </object>

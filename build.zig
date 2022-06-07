@@ -1,4 +1,30 @@
 const std = @import("std");
+const Pkg = std.build.Pkg;
+
+pub const pkgs = struct {
+    pub const hzzp = Pkg{
+        .name = "hzzp",
+        .source = std.build.FileSource.relative("libs/hzzp/src/main.zig"),
+    };
+
+    pub const zuri = Pkg{
+        .name = "zuri",
+        .source = std.build.FileSource.relative("libs/zuri/src/zuri.zig"),
+    };
+
+    pub const libressl = Pkg{
+        .name = "zig-libressl",
+        .source = std.build.FileSource.relative("libs/zig-libressl/src/main.zig"),
+    };
+
+    pub const zelda = Pkg{
+        .name = "zelda",
+        .source = .{ .path = "libs/zelda/src/main.zig" },
+        .dependencies = &[_]Pkg{
+            hzzp, zuri, libressl,
+        },
+    };
+};
 
 pub fn build(b: *std.build.Builder) void {
     // Standard target options allows the person running `zig build` to choose
@@ -15,6 +41,8 @@ pub fn build(b: *std.build.Builder) void {
     exe.addPackagePath("gtk", "libs/zig-gtk3/lib.zig");
     exe.linkLibC();
     exe.linkSystemLibrary("gtk+-3.0");
+    exe.linkSystemLibrary("libsecret-1");
+    exe.addPackage(pkgs.zelda);
     exe.setTarget(target);
     exe.setBuildMode(mode);
     exe.install();
