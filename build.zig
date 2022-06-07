@@ -12,6 +12,9 @@ pub fn build(b: *std.build.Builder) void {
     const mode = b.standardReleaseOptions();
 
     const exe = b.addExecutable("bitwarden-gtk-zig", "src/main.zig");
+    exe.addPackagePath("gtk", "libs/zig-gtk3/lib.zig");
+    exe.linkLibC();
+    exe.linkSystemLibrary("gtk+-3.0");
     exe.setTarget(target);
     exe.setBuildMode(mode);
     exe.install();
